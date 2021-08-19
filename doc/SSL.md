@@ -100,3 +100,9 @@ Query OK, 58 rows affected (0.00 sec)
 
 
 Happy SSLing!
+
+# Revoking certificates
+
+You can use the `mysql-ssl_p2s_crl` or `mysql-ssl_p2s_crlpath` to distribute Certificate Revocation Lists to your proxysql instances.
+
+Please refer to https://mariadb.com/kb/en/secure-connections-overview/#certificate-revocation-lists-crls

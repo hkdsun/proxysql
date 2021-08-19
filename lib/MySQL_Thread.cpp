@@ -273,9 +273,12 @@ static char * mysql_thread_variables_names[]= {
 	(char *)"default_reconnect",
 	(char *)"session_debug",
 	(char *)"ssl_p2s_ca",
+	(char *)"ssl_p2s_capath",
 	(char *)"ssl_p2s_cert",
 	(char *)"ssl_p2s_key",
 	(char *)"ssl_p2s_cipher",
+	(char *)"ssl_p2s_crl",
+	(char *)"ssl_p2s_crlpath",
 	(char *)"stacksize",
 	(char *)"threads",
 	(char *)"init_connect",
@@ -372,9 +375,12 @@ MySQL_Threads_Handler::MySQL_Threads_Handler() {
 	variables.servers_stats=true;
 	variables.default_reconnect=true;
 	variables.ssl_p2s_ca=NULL;
+	variables.ssl_p2s_capath=NULL;
 	variables.ssl_p2s_cert=NULL;
 	variables.ssl_p2s_key=NULL;
 	variables.ssl_p2s_cipher=NULL;
+	variables.ssl_p2s_crl=NULL;
+	variables.ssl_p2s_crlpath=NULL;
 #ifdef DEBUG
 	variables.session_debug=true;
 #endif /*debug */
@@ -484,6 +490,13 @@ char * MySQL_Threads_Handler::get_variable_string(char *name) {
 				return strdup(variables.ssl_p2s_ca);
 			}
 		}
+		if (!strcasecmp(name,"ssl_p2_capath")) {
+			if (variables.ssl_p2_capath==NULL || strlen(variables.ssl_p2_capath)==0) {
+				return NULL;
+			} else {
+				return strdup(variables.ssl_p2_capath);
+			}
+		}
 		if (!strcasecmp(name,"ssl_p2s_cert")) {
 			if (variables.ssl_p2s_cert==NULL || strlen(variables.ssl_p2s_cert)==0) {
 				return NULL;
@@ -503,6 +516,20 @@ char * MySQL_Threads_Handler::get_variable_string(char *name) {
 				return NULL;
 			} else {
 				return strdup(variables.ssl_p2s_cipher);
+			}
+		}
+		if (!strcasecmp(name,"ssl_p2s_crl")) {
+			if (variables.ssl_p2s_crl==NULL || strlen(variables.ssl_p2s_crl)==0) {
+				return NULL;
+			} else {
+				return strdup(variables.ssl_p2s_crl);
+			}
+		}
+		if (!strcasecmp(name,"ssl_p2s_crlpath")) {
+			if (variables.ssl_p2s_crlpath==NULL || strlen(variables.ssl_p2s_crlpath)==0) {
+				return NULL;
+			} else {
+				return strdup(variables.ssl_p2s_crlpath);
 			}
 		}
 	}
@@ -629,6 +656,13 @@ char * MySQL_Threads_Handler::get_variable(char *name) {	// this is the public f
 				return strdup(variables.ssl_p2s_ca);
 			}
 		}
+		if (!strcasecmp(name,"ssl_p2s_capath")) {
+			if (variables.ssl_p2s_capath==NULL || strlen(variables.ssl_p2s_capath)==0) {
+				return NULL;
+			} else {
+				return strdup(variables.ssl_p2s_capath);
+			}
+		}
 		if (!strcasecmp(name,"ssl_p2s_cert")) {
 			if (variables.ssl_p2s_cert==NULL || strlen(variables.ssl_p2s_cert)==0) {
 				return NULL;
@@ -648,6 +682,20 @@ char * MySQL_Threads_Handler::get_variable(char *name) {	// this is the public f
 				return NULL;
 			} else {
 				return strdup(variables.ssl_p2s_cipher);
+			}
+		}
+		if (!strcasecmp(name,"ssl_p2s_crl")) {
+			if (variables.ssl_p2s_crl==NULL || strlen(variables.ssl_p2s_crl)==0) {
+				return NULL;
+			} else {
+				return strdup(variables.ssl_p2s_crl);
+			}
+		}
+		if (!strcasecmp(name,"ssl_p2s_crlpath")) {
+			if (variables.ssl_p2s_crlpath==NULL || strlen(variables.ssl_p2s_crlpath)==0) {
+				return NULL;
+			} else {
+				return strdup(variables.ssl_p2s_crlpath);
 			}
 		}
 	}
@@ -1376,6 +1424,15 @@ bool MySQL_Threads_Handler::set_variable(char *name, char *value) {	// this is t
 		}
 		return true;
 	}
+	if (!strcasecmp(name,"ssl_p2s_capath")) {
+		if (variables.ssl_p2s_capath) free(variables.ssl_p2s_capath);
+		variables.ssl_p2s_capath=NULL;
+		if (vallen) {
+			if (strcmp(value,"(null)"))
+				variables.ssl_p2s_capath=strdup(value);
+		}
+		return true;
+	}
 	if (!strcasecmp(name,"ssl_p2s_cert")) {
 		if (variables.ssl_p2s_cert) free(variables.ssl_p2s_cert);
 		variables.ssl_p2s_cert=NULL;
@@ -1400,6 +1457,24 @@ bool MySQL_Threads_Handler::set_variable(char *name, char *value) {	// this is t
 		if (vallen) {
 			if (strcmp(value,"(null)"))
 				variables.ssl_p2s_cipher=strdup(value);
+		}
+		return true;
+	}
+	if (!strcasecmp(name,"ssl_p2s_crl")) {
+		if (variables.ssl_p2s_crl) free(variables.ssl_p2s_crl);
+		variables.ssl_p2s_crl=NULL;
+		if (vallen) {
+			if (strcmp(value,"(null)"))
+				variables.ssl_p2s_crl=strdup(value);
+		}
+		return true;
+	}
+	if (!strcasecmp(name,"ssl_p2s_crlpath")) {
+		if (variables.ssl_p2s_crlpath) free(variables.ssl_p2s_crlpath);
+		variables.ssl_p2s_crlpath=NULL;
+		if (vallen) {
+			if (strcmp(value,"(null)"))
+				variables.ssl_p2s_crlpath=strdup(value);
 		}
 		return true;
 	}
@@ -1730,9 +1805,12 @@ MySQL_Threads_Handler::~MySQL_Threads_Handler() {
 	if (variables.init_connect) free(variables.init_connect);
 	if (variables.eventslog_filename) free(variables.eventslog_filename);
 	if (variables.ssl_p2s_ca) free(variables.ssl_p2s_ca);
+	if (variables.ssl_p2s_capath) free(variables.ssl_p2s_capath);
 	if (variables.ssl_p2s_cert) free(variables.ssl_p2s_cert);
 	if (variables.ssl_p2s_key) free(variables.ssl_p2s_key);
 	if (variables.ssl_p2s_cipher) free(variables.ssl_p2s_cipher);
+	if (variables.ssl_p2s_crl) free(variables.ssl_p2s_crl);
+	if (variables.ssl_p2s_crlpath) free(variables.ssl_p2s_crlpath);
 	free(mysql_threads);
 	free(mysql_threads_idles);
 	mysql_threads=NULL;
@@ -1811,9 +1889,12 @@ MySQL_Thread::~MySQL_Thread() {
 	if (mysql_thread___init_connect) { free(mysql_thread___init_connect); mysql_thread___init_connect=NULL; }
 	if (mysql_thread___eventslog_filename) { free(mysql_thread___eventslog_filename); mysql_thread___eventslog_filename=NULL; }
 	if (mysql_thread___ssl_p2s_ca) { free(mysql_thread___ssl_p2s_ca); mysql_thread___ssl_p2s_ca=NULL; }
+	if (mysql_thread___ssl_p2s_capath) { free(mysql_thread___ssl_p2s_capath); mysql_thread___ssl_p2s_capath=NULL; }
 	if (mysql_thread___ssl_p2s_cert) { free(mysql_thread___ssl_p2s_cert); mysql_thread___ssl_p2s_cert=NULL; }
 	if (mysql_thread___ssl_p2s_key) { free(mysql_thread___ssl_p2s_key); mysql_thread___ssl_p2s_key=NULL; }
 	if (mysql_thread___ssl_p2s_cipher) { free(mysql_thread___ssl_p2s_cipher); mysql_thread___ssl_p2s_cipher=NULL; }
+	if (mysql_thread___ssl_p2s_crl) { free(mysql_thread___ssl_p2s_crl); mysql_thread___ssl_p2s_crl=NULL; }
+	if (mysql_thread___ssl_p2s_crlpath) { free(mysql_thread___ssl_p2s_crlpath); mysql_thread___ssl_p2s_crlpath=NULL; }
 }
 
 
@@ -2775,12 +2856,18 @@ void MySQL_Thread::refresh_variables() {
 	// SSL proxy to server
 	if (mysql_thread___ssl_p2s_ca) free(mysql_thread___ssl_p2s_ca);
 	mysql_thread___ssl_p2s_ca=GloMTH->get_variable_string((char *)"ssl_p2s_ca");
+	if (mysql_thread___ssl_p2s_capath) free(mysql_thread___ssl_p2s_capath);
+	mysql_thread___ssl_p2s_capath=GloMTH->get_variable_string((char *)"ssl_p2s_ca");
 	if (mysql_thread___ssl_p2s_cert) free(mysql_thread___ssl_p2s_cert);
 	mysql_thread___ssl_p2s_cert=GloMTH->get_variable_string((char *)"ssl_p2s_cert");
 	if (mysql_thread___ssl_p2s_key) free(mysql_thread___ssl_p2s_key);
 	mysql_thread___ssl_p2s_key=GloMTH->get_variable_string((char *)"ssl_p2s_key");
 	if (mysql_thread___ssl_p2s_cipher) free(mysql_thread___ssl_p2s_cipher);
 	mysql_thread___ssl_p2s_cipher=GloMTH->get_variable_string((char *)"ssl_p2s_cipher");
+	if (mysql_thread___ssl_p2s_crl) free(mysql_thread___ssl_p2s_crl);
+	mysql_thread___ssl_p2s_crl=GloMTH->get_variable_string((char *)"ssl_p2s_crl");
+	if (mysql_thread___ssl_p2s_crlpath) free(mysql_thread___ssl_p2s_crlpath);
+	mysql_thread___ssl_p2s_crlpath=GloMTH->get_variable_string((char *)"ssl_p2s_crlpath");
 
 	mysql_thread___monitor_writer_is_also_reader=(bool)GloMTH->get_variable_int((char *)"monitor_writer_is_also_reader");
 	mysql_thread___monitor_enabled=(bool)GloMTH->get_variable_int((char *)"monitor_enabled");
@@ -2856,9 +2943,12 @@ MySQL_Thread::MySQL_Thread() {
 
 	// SSL proxy to server
 	mysql_thread___ssl_p2s_ca=NULL;
+	mysql_thread___ssl_p2s_capath=NULL;
 	mysql_thread___ssl_p2s_cert=NULL;
 	mysql_thread___ssl_p2s_key=NULL;
 	mysql_thread___ssl_p2s_cipher=NULL;
+	mysql_thread___ssl_p2s_crl=NULL;
+	mysql_thread___ssl_p2s_crlpath=NULL;
 
 	last_maintenance_time=0;
 	maintenance_loop=true;

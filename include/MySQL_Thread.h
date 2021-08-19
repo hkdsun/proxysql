@@ -354,9 +354,12 @@ class MySQL_Threads_Handler
 		int eventslog_filesize;
 		// SSL related, proxy to server
 		char * ssl_p2s_ca;
+		char * ssl_p2s_capath;
 		char * ssl_p2s_cert;
 		char * ssl_p2s_key;
 		char * ssl_p2s_cipher;
+		char * ssl_p2s_crl;
+		char * ssl_p2s_crlpath;
 		int query_cache_size_MB;
 	} variables;
 	unsigned int num_threads;
